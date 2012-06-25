@@ -46,6 +46,18 @@
                                                 ;;
                                                 ".BridgeCache" ".BridgeCacheT" "Thumbs.db"))
 
+
+;; (notany #'null (map 'list #'functionp (list *psd-scanner*
+;;                                             *jpg-scanner* *jpg-gz-scanner*
+;;                                             *bmp-scanner* *bmp-gz-scanner*
+;;                                             *nef-scanner* *tiff-scanner* *extension-gz-scanner*)))
+;;
+
+;; :NOTE consider using regex case insensitive regex (?-i) for matching
+;; pathname-type's e.g. "^/.*\\.(psd(?-i)|PSD(?-i))$"
+;; (cl-ppcre:scan-to-strings "^/.*\\.(psd(?-i)|PSD(?-i))$" "/image-foo.PSD")
+;; => "/image-foo.PSD", #("PSD")
+;;
 (defvar *psd-scanner*   (cl-ppcre:create-scanner "^/.*\\.(psd|PSD)$"))
 
 (defvar *jpg-scanner*    (cl-ppcre:create-scanner "^/.*\\.(jpe?g|JPE?G)$"))
