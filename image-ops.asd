@@ -41,6 +41,7 @@
    (:file "image-ops-hash-dir-tree")
    (:file "image-ops-iphone")
    (:file "image-ops-nikon-nef")
+   (:file "image-ops-copy-misc")
    (:file "image-ops-docs")
    #+IS-MON (:file "image-ops-loadtime-bind")
    ))
