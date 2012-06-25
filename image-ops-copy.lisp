@@ -34,8 +34,10 @@
       (copy-image-byte-stream byte-input
                               byte-output
                               :element-type element-type)))
-  ;; (probe-file dest-byte-file)
   (and
+   ;; We probe-file here to ensure that the copy actually occured b/c it may
+   ;; have errored. In particular it may have done so around an :if-exists when
+   ;;  (eql if-exists :error)
    (probe-file dest-byte-file)
    (and set-dest-byte-file-write-date
         (or (mon::set-file-write-date-using-file  (namestring dest-byte-file) (namestring source-byte-file))
