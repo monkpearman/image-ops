@@ -210,19 +210,7 @@
                     pathname))))
           (map 'list #'maybe-translate-pathname-digital-camera-image maybe-find-jpgs)))))
 
-
-(defun rename-file-numbering-jpgs-in-directory (base-directory &key (case-mode nil)) ;; 
-  "Find any jpg files immediately contained of pathname BASE-DIRECTORY and rename and number them.
-Renamed files will have the format:
- <BASE-DIRECTORY-NAME>-<NN>.jpg
-Return a list of the form:
-  ((<NEW-NAME-00>.jpg <OLD-NAME>.jpg)
-   (<NEW-NAME-01>.jpg <OLD-NAME>.jpg) ...)
-When a new-name already exists for a file that file is not not renamed in
-which case the return list element is of the form:
- (NIL <OLD-NAME>.jpg)
-BASE-DIRECTORY is a pathname for an existing directory and is probed as if by `cl:probe-file'.
-Keyword CASE-MODE is as per `image-ops:directory-jpg-images'."
+(defun rename-file-numbering-jpgs-in-directory (base-directory &key (case-mode nil))
   (let* ((probed-dir (probe-file base-directory))
          (probed-jpgs (and probed-dir (image-ops:directory-jpg-images probed-dir :case-mode case-mode)))
          (base-name (and probed-jpgs (car (last (pathname-directory probed-dir))))))

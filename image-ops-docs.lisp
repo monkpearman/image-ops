@@ -583,6 +583,22 @@ Valid arguments are :upcase :downcase :insensitive and indicate as follows:
 `rename-file-nef-images-in-directory', `translate-pathname-iphone-image',
 `rename-file-iphone-images-in-directory'.~%▶▶▶")
 
+(mon:fundoc 'rename-file-numbering-jpgs-in-directory
+  "Find any jpg files immediately contained of pathname BASE-DIRECTORY and rename and number them.~%~@
+Renamed files will have the format:~%
+ <BASE-DIRECTORY-NAME>-<NN>.jpg~%
+Return a list of the form:~%
+  \(\(<NEW-NAME-00>.jpg <OLD-NAME>.jpg\)
+   \(<NEW-NAME-01>.jpg <OLD-NAME>.jpg\) ...\)~%~@
+When a new-name already exists for a file that file is not not renamed in
+which case the return list element is of the form:~%
+ \(NIL <OLD-NAME>.jpg\)~%~@
+BASE-DIRECTORY is a pathname for an existing directory and is probed as if by `cl:probe-file'.~%~@
+Keyword CASE-MODE is as per `image-ops:directory-jpg-images'.~%~@
+:SEE-ALSO :SEE-ALSO `directory-nef-images', `translate-pathname-nef-image',
+`rename-file-nef-images-in-directory', `translate-pathname-iphone-image',
+`rename-file-iphone-images-in-directory'.~%▶▶▶")
+
 (mon:fundoc 'directory-nef-images
 "Find pathnames beneath BASE-DIRECTORY with pathname-tyeps matching the
 ppcre regular expression \"^nef$\".~%~@
