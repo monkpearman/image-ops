@@ -69,7 +69,10 @@
              ;; image-ops-iphone.lisp
              #:directory-jpg-images
              #:translate-pathname-iphone-image
+             #:translate-pathname-digital-camera-image
              #:rename-file-iphone-images-in-directory
+             #:rename-file-digital-camera-images-in-directory
+             #:rename-file-numbering-jpgs-in-directory
              ;;
              ;; image-ops-nikon-nef.lisp
              #:directory-nef-images

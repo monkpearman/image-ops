@@ -84,6 +84,33 @@
                                 :name buffer
                                 :type "jpg"))))))))
 
+(defun translate-pathname-digital-camera-image (pathname-or-namestring &key (case-mode :upcase))
+  (declare (type (or (eql :upcase)
+                     (eql :downcase)
+                     (eql :insensitive)) case-mode))
+  (let ((fname (file-namestring pathname-or-namestring)))
+    (flet ((ext-compare (extension)
+             (ecase case-mode
+               (:upcase (string= extension ".JPG"))
+               (:downcase (string= extension ".jpg"))
+               (:insensitive (string-equal extension ".JPG")))))
+      (when (= (mon:string-length fname) 12)
+        ;; (mon:string-subdivide "DSC01475" 4)
+        (destructuring-bind (img num ext &rest rest) (mon:string-subdivide fname 4)
+          (and (not rest)
+               (not (string= img "IMG_")) ; don't match iphone images
+               (every #'(lambda (x) (or (upper-case-p x) (digit-char-p x))) img)
+               (every #'digit-char-p num)
+               (ext-compare ext)
+               (let ((buffer (make-array 27 :element-type 'character :fill-pointer 0)))
+                 (with-output-to-string (output buffer)
+                   (format output "~6,'0d-dc-" (parse-integer num))
+                   (mon::format-timestring output (local-time:universal-to-timestamp (file-write-date pathname-or-namestring))
+                                           :format mon:*timestamp-for-file-format*))
+                 (make-pathname :directory (pathname-directory pathname-or-namestring)
+                                :name buffer
+                                :type "jpg"))))))))
+
 ;; (defun directory-jpg-images (base-directory &key (wilden nil))
 ;; (let ((wild-jpeg-scanner (cl-ppcre:create-scanner "(?i)^jpe?g$" :case-insensitive-mode t)))
 ;; find all pathnames  beneath BASE-DIRECTORY with pathname-tyeps matching the regular expression
@@ -151,6 +178,65 @@
                     (and maybe-transformed (rename-file pathname maybe-transformed))
                     pathname))))
           (map 'list #'maybe-translate-pathname-iphone-image maybe-find-jpgs)))))
+
+(defun rename-file-digital-camera-images-in-directory (base-directory &key (wilden nil)
+                                                                           (case-mode :upcase))
+  (declare (type (or boolean (eql :wild) (eql :wild-inferiors)) wilden)
+           (type (or (eql :upcase)
+                     (eql :downcase)
+                     (eql :insensitive)) case-mode))
+  (unless (probe-file base-directory)
+    (error ":FUNCTION `rename-file-digital-camera-images-in-directory' -- ~
+             arg BASE-DIRECTORY non-existent~% got: ~S"
+           base-directory))
+  ;; (let* ((wild-jpgs (make-pathname :directory (ecase wilden
+  ;;                                               ((:wild-inferiors :wild)
+  ;;                                                `(,@(pathname-directory base-directory) ,wilden))
+  ;;                                               ((t)
+  ;;                                                `(,@(pathname-directory base-directory) ,:wild))
+  ;;                                               ((nil) `(,@(pathname-directory base-directory))))
+  ;;                                  :name :wild
+  ;;                                  :type "JPG"))
+  ;;        (maybe-find-jpgs (directory wild-jpgs)))
+  (let ((maybe-find-jpgs (directory-jpg-images base-directory
+                                               :wilden wilden
+                                               :case-mode case-mode)))
+    (if (null maybe-find-jpgs)
+        nil
+        (flet ((maybe-translate-pathname-digital-camera-image (pathname)
+                 (let ((maybe-transformed (translate-pathname-digital-camera-image pathname :case-mode case-mode)))
+                   (list
+                    (and maybe-transformed (rename-file pathname maybe-transformed))
+                    pathname))))
+          (map 'list #'maybe-translate-pathname-digital-camera-image maybe-find-jpgs)))))
+
+
+(defun rename-file-numbering-jpgs-in-directory (base-directory &key (case-mode nil)) ;; 
+  "Find any jpg files immediately contained of pathname BASE-DIRECTORY and rename and number them.
+Renamed files will have the format:
+ <BASE-DIRECTORY-NAME>-<NN>.jpg
+Return a list of the form:
+  ((<NEW-NAME-00>.jpg <OLD-NAME>.jpg)
+   (<NEW-NAME-01>.jpg <OLD-NAME>.jpg) ...)
+When a new-name already exists for a file that file is not not renamed in
+which case the return list element is of the form:
+ (NIL <OLD-NAME>.jpg)
+BASE-DIRECTORY is a pathname for an existing directory and is probed as if by `cl:probe-file'.
+Keyword CASE-MODE is as per `image-ops:directory-jpg-images'."
+  (let* ((probed-dir (probe-file base-directory))
+         (probed-jpgs (and probed-dir (image-ops:directory-jpg-images probed-dir :case-mode case-mode)))
+         (base-name (and probed-jpgs (car (last (pathname-directory probed-dir))))))
+    (when probed-jpgs
+      (loop 
+        for cnt from 0 below (length probed-jpgs)
+        for jpg-file in probed-jpgs
+        for new-name = (merge-pathnames (make-pathname :name (format nil "~A-~2,'0D" base-name cnt) :type "jpg")
+                                        probed-dir)
+        collect (if (probe-file new-name) ; don't rename if there is an existing file with NEW-NAME
+                    (list nil jpg-file)
+                    (list 
+                     (rename-file jpg-file new-name)
+                     jpg-file))))))
 
 
 
