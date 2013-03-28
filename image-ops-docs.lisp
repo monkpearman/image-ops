@@ -452,7 +452,7 @@ Given a pathname having either of the forms:~%
  #P\"/foo/bar/IMG_NNNN.JPG\"
  #P\"/foo/bar/IMG_NNNN.jpg\"
 return value is of the form:~%
- #P\"/foo/bar/NNNN-<FILE-WRITE-DATE>.jpg\"~%
+ #P\"/foo/bar/NNNN-ip-<FILE-WRITE-DATE>.jpg\"~%
 If PATHNAME-OR-NAMESTRING does not match the pattern above return NIL.~%~@
 PATHNAME-OR-NAMESTRING must name an existing file, an error is signaled if not.~%~@
 Keyword CASE-MODE indicates how case sensitvity is used when matching the
@@ -465,6 +465,17 @@ Valid arguments are :upcase :downcase :insensitive and indicate as follows:~%
  \(translate-pathname-iphone-image \"/foo/bar/3936_SOLD/IMG_0319.jpg\" :case-mode :downcase \)~%
  \(translate-pathname-iphone-image \"/foo/bar/IMG_0319.JPG\"\)~%
  \(null \(translate-pathname-iphone-image \"/foo/bar/IMG_0319mmmmm.JPG\"\)\)~%~@
+:SEE-ALSO `translate-pathname-digital-camera-image', `rename-file-iphone-images-in-directory', `directory-jpg-images'.~%▶▶▶")
+
+(mon:fundoc 'translate-pathname-digital-camera-image
+            "Like `translate-pathname-iphone-image' but for generic digital cameras
+Return a translated pathname when namestring of PATHNAME-OR-NAMESTRING matches the pattern:
+ [0-9A-Z]{4}[0-9A-Z]{4}.JjPpGg
+ e.g. P3040053.jpg DSC01475.JPG
+Return value is of the form:~%
+ #P\"/foo/bar/NNNN-dc-<FILE-WRITE-DATE>.jpg\"~%
+:NOTE does not match namestrings prefixed by \"IMG_\".
+Use `translate-pathname-iphone-image' if that is what is wanted.
 :SEE-ALSO `rename-file-iphone-images-in-directory', `directory-jpg-images'.~%▶▶▶")
 
 (mon:fundoc 'rename-file-iphone-images-in-directory
@@ -489,7 +500,15 @@ Valid arguments are :upcase :downcase :insensitive and indicate as follows:
  - when CASE-MODE is insensitive match either \"JPG\" or \"jpg\"~%~@
 :EXAMPLE~%
  \(rename-file-iphone-images-in-directory \"/some/path/with/iphone/images/\"\)~%~@
-:SEE-ALSO `directory-jpg-images'.~%▶▶▶")
+:SEE-ALSO `rename-file-digital-camera-images-in-directory',
+`translate-pathname-digital-camera-image', `directory-jpg-images'.~%▶▶▶")
+
+(mon:fundoc 'rename-file-digital-camera-images-in-directory
+            "Like `rename-file-iphone-images-in-directory' but invokes
+`translate-pathname-digital-camera-image' instead of `translate-pathname-iphone-image'.
+:EXAMPLE~%
+ \(rename-file-digital-camera-images-in-directory \"/some/path/with/digital-camera/images/\"\)~%~@
+:SEE-ALSO `directory-jpg-images'.")
 
 (mon:fundoc 'directory-jpg-images
 "Find pathnames beneath BASE-DIRECTORY with pathname-tyeps matching the
@@ -587,6 +606,27 @@ When CASE-MODE is :downcase only pathname-types with all lowercase characters ar
 :SEE-ALSO `directory-nef-images', `translate-pathname-nef-image',
 `rename-file-nef-images-in-directory', `translate-pathname-iphone-image',
 `rename-file-iphone-images-in-directory'.~%▶▶▶")
+
+
+(mon:fundoc 'copy-image-cmg-nefs
+"Copy nef images matching IMAGE-MATCH-REGEX pattern
+from IMAGE-DIRECTORY-PATHNAME-SOURCE to a corresponding subdir beneath
+IMAGE-DIRECTORY-PATHNAME-BASE-TARGET (if it exists).~%~@
+When DELETE-FILE-IMAGE-SOURCE is non-nil (the defalut) upon successfully copying
+a matched image beneath a subdir of IMAGE-DIRECTORY-PATHNAME-SOURCE the matched
+image is deleted prior to returning.~%~@
+IMAGE-MATCH-REGEX is a regular expression \(a string or cl-ppcre scanner\)
+comprised of two register groups the first of which matches a file's image-name
+with a target directory beneath IMAGE-DIRECTORY-PATHNAME-BASE-TARGET, the second
+value is currently ignored but should _NOT_ contain a pattern matching the pathname-type.~%~@
+:NOTE Currenly `directory-nef-images' is invoked with keyword :case-mode :down-case.
+IOW, this function is hardwired to only matches pathnames where:~%
+ \(equal \(pathname-type <MATCH>\) \"nef\"\)~%~@
+:EXAMPLE~%~
+ \(copy-image-cmg-nefs :image-directory-pathname-source #P\"/mnt/foo/bar/baz/\"
+                      :image-directory-pathname-base-target #P\"/mnt/quux/zomp/blarg/\"
+                      :image-match-regex \(cl-ppcre:create-scanner \"\(cmg-\\\\d{4}\)\(-\\\\d{1,2}\)\"\)\)~%~@
+:SEE-ALSO `copy-image-byte-file'.~%▶▶▶")
 
 ;;; ==============================
 

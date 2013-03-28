@@ -4,6 +4,9 @@
 
 #|
 
+;; fashion-inventory::fashion-inventory-image-copy-directory-nef-images
+;;
+
  A regexp for matching pathname-name's having the form: 
   "018002-WEAR-08"
  
@@ -19,32 +22,21 @@
 (in-package #:image-ops)
 
 
+;; (cl-ppcre:register-groups-bind (cmg cmg-suffix) ("(cmg-\\d{4})(-\\d{1,2})" "cmg-1340-01.nef")
+;;   (list cmg cmg-suffix))
+;;
 ;; (copy-image-cmg-nefs :image-directory-pathname-source #P"<CMG-SOURCE-PATHNAME>"
 ;;                      :image-directory-pathname-base-target #P"<CMG-TARGET-PATHNAME>"
 ;;                      :image-match-regex (cl-ppcre:create-scanner "(cmg-\\d{4})(-\\d{1,2})"))
 (defun copy-image-cmg-nefs (&key image-directory-pathname-source
                                  image-directory-pathname-base-target
                                  image-match-regex
+                                 ;; (delete-file-image-source nil)
                                  (delete-file-image-source t))
-"Copy nef images matching IMAGE-MATCH-REGEX pattern
-from IMAGE-DIRECTORY-PATHNAME-SOURCE to a corresponding subdir beneath
-IMAGE-DIRECTORY-PATHNAME-BASE-TARGET (if it exists).
-When DELETE-FILE-IMAGE-SOURCE is non-nil (the defalut) deletes each matched image
-in source directory prior to returning.
-IMAGE-MATCH-REGEX is a regular expression \(a string or cl-ppcre scanner\)
-comprised of two register groups the first of which matches a file's image-name
-with a target directory beneath IMAGE-DIRECTORY-PATHNAME-BASE-TARGET, the second
-value is currently ignored but should _NOT_ contain a pattern matching the pathname-type.
-:NOTE Currenly `directory-nef-images' is invoked with keyword :case-mode :down-case.
-IOW, this function is hardwired to only matches pathnames where:
- \(equal \(pathname-type <MATCH>\) \"nef\"\)
-:EXAMPLE
- \(copy-image-cmg-nefs :image-directory-pathname-source #P\"/mnt/foo/bar/baz/\"
-                      :image-directory-pathname-base-target #P\"/mnt/quux/zomp/blarg/\"
-                      :image-match-regex \(cl-ppcre:create-scanner \"\(cmg-\\\\d{4}\)\(-\\\\d{1,2}\)\"\)\)
-:SEE-ALSO `copy-image-byte-file'.~%▶▶▶"
   (declare (pathname image-directory-pathname-source
-                     image-directory-pathname-base-target))
+                     image-directory-pathname-base-target)
+           ;; (function image-match-regex)
+           (boolean delete-file-image-source))
   (let ((results nil)
         (delete-results nil))
     (setf results
@@ -61,17 +53,30 @@ IOW, this function is hardwired to only matches pathnames where:
                                            (mon:probe-directory
                                             (merge-pathnames (make-pathname :directory (list :relative cmg))
                                                              image-directory-pathname-base-target))))
+                          ;; :TESTING
                           ;; (cons image-path
                           ;;                     (merge-pathnames (make-pathname :name image-name :type "nef")
                           ;;                                      maybe-target-nef-directory)))))
                           ;; collect it into gthr
                           ;; finally (return  gthr)))
+                          ;; 
+                          ;; :TODO We should have a handler here to allow
+                          ;; continuing should `copy-image-byte-file' error on a
+                          ;; specific image.
+                          ;; :TESTING
+                          ;; (cons image-path
+                          ;;       (merge-pathnames (make-pathname :name image-name :type "nef")
+                          ;;                                              maybe-target-nef-directory)))))
+                          ;;
+                          ;; :LIVE
                           (cons image-path
                                 (copy-image-byte-file image-path
                                                       (merge-pathnames (make-pathname :name image-name :type "nef")
                                                                        maybe-target-nef-directory)
+                                                      :if-exists :supersede
                                                       :set-dest-byte-file-write-date t)))))
-            collect it into gthr))
+
+            collect it))
     (if delete-file-image-source
         (unwind-protect
              (values results
