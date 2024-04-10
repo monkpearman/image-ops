@@ -16,10 +16,16 @@
 
 (in-package #:image-ops-build-system)
 
+(defvar *author-maintainer-contact* (format nil "MON KEY -- ~A"
+                                 (map 'string
+                                      'code-char
+                                      #(109 111 110 107 101 121 64 115 97 110 100 112 
+                                        102 114 97 109 105 110 103 46 99 111 109))))
+
 (defsystem :image-ops
   ;; :name ""
   :author  "MON KEY"
-  :maintainer "MON KEY"
+  :maintainer #.*author-maintainer-contact*
   :license "MIT"
   :description "image operations agglomerated"
   :version "1.0.0"
@@ -52,8 +58,7 @@
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; show-trailing-whitespace: t
-;; mode: lisp-interaction
-;; End:
+
 
 ;;; ==============================
 ;;; EOF
