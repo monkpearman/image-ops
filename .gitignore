@@ -1,0 +1,10 @@
+*~
+*#
+*.fasl
+TAGS
+.bzrignore
+.bzr/*
+image-ops-loadtime-bind.lisp
+image-ops-notes/*
+
+

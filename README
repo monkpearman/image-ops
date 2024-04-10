@@ -4,13 +4,13 @@ The genesis of this system origninated from features previously provided by:
 
 IMAGE-OPS is dependent on the system MON:
 
-:SEE https://github.com/mon-key/mon-systems-cl
- git://github.com/mon-key/mon-systems-cl.git
+:SEE https://github.com/monkpearman/image-ops.git
+     git@github.com:monkpearman/image-ops.git
 
 We intend that Additional features from the system CL-BMP will be incorporated
 with IMAGE-OPS as needed at which time it will become a dependencey as well.
 
-:SEE https://github.com/mon-key/cl-bmp
+:SEE https://github.com/monkpearman/cl-bmp
 
 Likewise, we anticipate incorporating features form Walter Pelissero's systems:
 
