@@ -5,7 +5,6 @@
 ;; :TODO incorporate the metafs/MeDaMA abstractions for image files.
 
 (in-package #:image-ops)
-;; *package*
 
 
 (defun verify-image-magic-convert-path ()
